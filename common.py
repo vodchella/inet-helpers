@@ -4,7 +4,7 @@ import urllib
 USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0"
 
 
-def request(host, ssl, handler_url, params, headers=None):
+def request(host, ssl=False, handler_url=None, params=None, headers=None):
     if not headers:
         headers = {}
     result = ""
@@ -15,7 +15,13 @@ def request(host, ssl, handler_url, params, headers=None):
         else:
             conn = httplib.HTTPConnection(host)
         conn.connect()
-        conn.request("GET", "%s?%s" % (handler_url, urllib.urlencode(params)), headers=headers)
+        if handler_url and params:
+            request_url = "%s?%s" % (handler_url, urllib.urlencode(params))
+        elif handler_url:
+            request_url = handler_url
+        else:
+            request_url = "/"
+        conn.request("GET", request_url, headers=headers)
         response = conn.getresponse()
         if response.status == httplib.OK:
             result = response.read()
